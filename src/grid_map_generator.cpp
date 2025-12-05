@@ -166,6 +166,7 @@ void GridMapGenerator::createPolygonExample() {
   m_polygons.push_back(polygon);
   return;
 }
+
 void GridMapGenerator::createPolygons(
     std::vector<std::vector<geometry_msgs::Point32>> polygon_points) {
   for (size_t i = 0; i < polygon_points.size(); i++) {
@@ -177,6 +178,7 @@ void GridMapGenerator::createPolygons(
   }
   return;
 }
+
 void GridMapGenerator::generateGridMap() {
 
   // 设置地图上的高度值
