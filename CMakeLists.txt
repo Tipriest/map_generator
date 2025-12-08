@@ -1,5 +1,11 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(map_generator)
+
+# CMP0048: project() command manages VERSION variables
+if(POLICY CMP0048)
+  cmake_policy(SET CMP0048 NEW)
+endif()
+
+project(map_generator VERSION 0.0.1)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 set(CMAKE_BUILD_TYPE "DEBUG")
