@@ -17,6 +17,7 @@
 
 ## 二. 环境安装
 > 此设置已在 **Ubuntu 20.04** 和 **ros1 noetic** 上通过测试。
+> 此设置已在 **Ubuntu 22.04** 和 **ros2 humble** 上通过测试，需要切换到[ros2/humble分支](https://github.com/Tipriest/map_generator/tree/ros2/humble)
 
 ### 2.1 克隆带有子模块的仓库
 ```bash
