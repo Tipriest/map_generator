@@ -1,19 +1,18 @@
 #pragma once
 
 #include <algorithm>
-#include <geometry_msgs/Point32.h>
-#include <geometry_msgs/Polygon.h>
+#include <geometry_msgs/msg/point32.hpp>
+#include <geometry_msgs/msg/polygon.hpp>
 #include <grid_map_core/grid_map_core.hpp>
-#include <grid_map_msgs/GridMap.h>
+#include <grid_map_msgs/msg/grid_map.hpp>
 #include <grid_map_ros/grid_map_ros.hpp>
 #include <random>
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <string>
 
-class GridMapGenerator {
+class GridMapGenerator : public rclcpp::Node {
 public:
-  GridMapGenerator(const ros::NodeHandle &nh,
-                   std::shared_ptr<grid_map::GridMap> global_map_ptr,
+  GridMapGenerator(std::shared_ptr<grid_map::GridMap> global_map_ptr,
                    std::vector<std::string> layers);
 
   double m_length = 20.0;
@@ -30,23 +29,22 @@ public:
   double getSwellOccupancy(double x, double y, std::vector<std::string>,
                            double swell_dis = 0.3);
   void publishGridMap();
-  void generate_dynamic_object(const ros::TimerEvent &e);
+  void generate_dynamic_object();
 
 private:
-  ros::NodeHandle nh_;
-  ros::Publisher m_map_publisher;
-  std::vector<geometry_msgs::Polygon> m_polygons;
+  rclcpp::Publisher<grid_map_msgs::msg::GridMap>::SharedPtr m_map_publisher;
+  std::vector<geometry_msgs::msg::Polygon> m_polygons;
   std::shared_ptr<grid_map::GridMap> m_grid_map_ptr;
-  ros::Timer m_map_publish_timer;
-  ros::Timer m_dynamic_object_timer;
+  rclcpp::TimerBase::SharedPtr m_map_publish_timer;
+  rclcpp::TimerBase::SharedPtr m_dynamic_object_timer;
 
   bool isPointInPolygon(double x, double y);
   void createPolygonExample();
   void generateGridMap();
   void generateAndPublishMap();
-  void mapPubTimerCB(const ros::TimerEvent &e);
+  void mapPubTimerCB();
   void createPolygons(
-      std::vector<std::vector<geometry_msgs::Point32>> polygon_points);
+      std::vector<std::vector<geometry_msgs::msg::Point32>> polygon_points);
   void random_generate_obs(int circle_num, double radius_min,
                            double radius_max);
 };

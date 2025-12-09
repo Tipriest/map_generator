@@ -3,10 +3,10 @@
 using namespace grid_map;
 
 GridMapGenerator::GridMapGenerator(
-    const ros::NodeHandle &nh,
     std::shared_ptr<grid_map::GridMap> global_map_ptr,
     std::vector<std::string> layers)
-    : nh_(nh), m_grid_map_ptr(global_map_ptr), m_layers(layers) {
+    : Node("map_generator_node"), m_grid_map_ptr(global_map_ptr),
+      m_layers(layers) {
 
   // 初始化 GridMap
   m_grid_map = *m_grid_map_ptr;
@@ -19,16 +19,18 @@ GridMapGenerator::GridMapGenerator(
   generateGridMap();
   random_generate_obs(20, std::min(m_length, m_width) / 25,
                       std::max(m_length, m_width) / 10);
+
   // 发布 GridMap
-  m_map_publisher = nh_.advertise<grid_map_msgs::GridMap>("grid_map", 1);
-  m_map_publish_timer =
-      nh_.createTimer(ros::Duration(0.033),
-                      boost::bind(&GridMapGenerator::mapPubTimerCB, this, _1));
-  m_map_publish_timer.start();
-  m_dynamic_object_timer = nh_.createTimer(
-      ros::Duration(0.02),
-      boost::bind(&GridMapGenerator::generate_dynamic_object, this, _1));
-  m_dynamic_object_timer.start();
+  m_map_publisher =
+      this->create_publisher<grid_map_msgs::msg::GridMap>("grid_map", 1);
+
+  m_map_publish_timer = this->create_wall_timer(
+      std::chrono::milliseconds(33),
+      std::bind(&GridMapGenerator::mapPubTimerCB, this));
+
+  m_dynamic_object_timer = this->create_wall_timer(
+      std::chrono::milliseconds(20),
+      std::bind(&GridMapGenerator::generate_dynamic_object, this));
 }
 
 bool GridMapGenerator::isPointInPolygon(double x, double y) {
@@ -141,8 +143,8 @@ void GridMapGenerator::random_generate_obs(int circle_num, double radius_min,
 }
 
 void GridMapGenerator::createPolygonExample() {
-  geometry_msgs::Polygon polygon;
-  geometry_msgs::Point32 p1, p2, p3, p4;
+  geometry_msgs::msg::Polygon polygon;
+  geometry_msgs::msg::Point32 p1, p2, p3, p4;
   p1.x = 2.0;
   p1.y = 2.0;
   p1.z = 0.0;
@@ -168,9 +170,9 @@ void GridMapGenerator::createPolygonExample() {
 }
 
 void GridMapGenerator::createPolygons(
-    std::vector<std::vector<geometry_msgs::Point32>> polygon_points) {
+    std::vector<std::vector<geometry_msgs::msg::Point32>> polygon_points) {
   for (size_t i = 0; i < polygon_points.size(); i++) {
-    geometry_msgs::Polygon polygon;
+    geometry_msgs::msg::Polygon polygon;
     for (size_t j = 0; j < polygon_points[i].size(); j++) {
       polygon.points.push_back(polygon_points[i][j]);
     }
@@ -192,9 +194,8 @@ void GridMapGenerator::generateGridMap() {
 }
 
 void GridMapGenerator::publishGridMap() {
-  grid_map_msgs::GridMap grid_map_msg;
-  grid_map::GridMapRosConverter::toMessage(m_grid_map, grid_map_msg);
-  m_map_publisher.publish(grid_map_msg);
+  auto grid_map_msg_ptr = grid_map::GridMapRosConverter::toMessage(m_grid_map);
+  m_map_publisher->publish(std::move(grid_map_msg_ptr));
 }
 
 void GridMapGenerator::generateAndPublishMap() {
@@ -202,9 +203,7 @@ void GridMapGenerator::generateAndPublishMap() {
   publishGridMap();
 }
 
-void GridMapGenerator::mapPubTimerCB(const ros::TimerEvent &e) {
-  publishGridMap();
-}
+void GridMapGenerator::mapPubTimerCB() { publishGridMap(); }
 
 double GridMapGenerator::getOccupancy(double x, double y,
                                       std::vector<std::string> layer) {
@@ -250,7 +249,7 @@ double GridMapGenerator::getSwellOccupancy(double x, double y,
   return 0;
 }
 
-void GridMapGenerator::generate_dynamic_object(const ros::TimerEvent &e) {
+void GridMapGenerator::generate_dynamic_object() {
   // 10s走一次
   int total_steps = 1000;
   static int count = 0;
@@ -283,9 +282,6 @@ void GridMapGenerator::generate_dynamic_object(const ros::TimerEvent &e) {
   }
   count++;
   count = count % total_steps;
-  // ros::Time time2 = ros::Time::now();
-  // std::cout << "count = " << count << " " << (time2 - time1).toSec()
-  //           << std::endl;
   last_center1 = cur_center1;
   last_center2 = cur_center2;
 }
