@@ -100,6 +100,7 @@ void GridMapGenerator::random_generate_obs(int circle_num, double radius_min,
       for (grid_map::CircleIterator iterator(m_grid_map, cur_center, radius);
            !iterator.isPastEnd(); ++iterator) {
         m_grid_map.at("elevation", *iterator) = 1.5;
+        m_grid_map.at("traversability", *iterator) = 0.0; // 障碍物不可通行
       }
     } else if (300 <= seed && seed < 400) {
       grid_map::Length length(2 * radius * dis(gen) / 1000.0,
@@ -182,14 +183,11 @@ void GridMapGenerator::createPolygons(
 }
 
 void GridMapGenerator::generateGridMap() {
-
   // 设置地图上的高度值
   for (GridMapIterator it(m_grid_map); !it.isPastEnd(); ++it) {
-    // Position position;
-    // m_grid_map.getPosition(*it, position);
-
     m_grid_map.at("elevation", *it) = 0.0;        // 区域外高度为 0
     m_grid_map.at("dynamic_obstacle", *it) = 0.0; // 区域外高度为 0
+    m_grid_map.at("traversability", *it) = 1.0;   // 可通行区域默认为 1.0
   }
 }
 

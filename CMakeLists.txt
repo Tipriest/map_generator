@@ -21,6 +21,7 @@ find_package(rclcpp REQUIRED)
 find_package(grid_map_core REQUIRED)
 find_package(grid_map_ros REQUIRED)
 find_package(grid_map_msgs REQUIRED)
+# find_package(nav2_msgs REQUIRED)
 
 # Include directories
 include_directories(
@@ -49,6 +50,13 @@ target_link_libraries(${PROJECT_NAME}_node
 )
 
 ament_target_dependencies(${PROJECT_NAME}_node
+  rclcpp
+  grid_map_core
+  grid_map_ros
+  grid_map_msgs
+)
+
+ament_export_dependencies(
   rclcpp
   grid_map_core
   grid_map_ros

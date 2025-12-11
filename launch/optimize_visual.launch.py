@@ -21,6 +21,7 @@ def generate_launch_description():
             package='map_generator',
             executable='map_generator_node',
             name='map_generator_node',
-            output='screen'
+            output='screen',  # none， screen，log 三种输出方式
+            parameters=[{'grid_map_topic': 'grid_map'}]  # 设置话题名称
         ),
     ])
