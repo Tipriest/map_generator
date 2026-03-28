@@ -16,13 +16,13 @@
 
 
 ## 二. 环境安装
-> 此设置已在 **Ubuntu 20.04** 和 **ros1 noetic** 上通过测试。  
+> 此设置已在 **Ubuntu 20.04** 和 **ros1 noetic** 上通过测试。
 > 此设置已在 **Ubuntu 22.04** 和 **ros2 humble** 上通过测试，需要切换到[ros2/humble分支](https://github.com/Tipriest/map_generator/tree/ros2/humble)
 
 ### 2.1 克隆带有子模块的仓库
 ```bash
 sudo apt install ros-noetic-grid-map
-mkdir -p catkin_ws/src 
+mkdir -p catkin_ws/src
 git clone git@github.com:Tipriest/map_generator.git ./catkin_ws/src
 ```
 
@@ -34,5 +34,5 @@ catkin build
 
 ## 三. 仿真环境使用
 ```bash
-roslaunch map_generator optimize_visual.launch
+roslaunch map_generator map_generator.launch
 ```
