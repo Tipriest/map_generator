@@ -1,34 +1,74 @@
 #include "grid_map_generator.h"
+#include "unordered_set"
 
 using namespace grid_map;
+using namespace std;
 
-GridMapGenerator::GridMapGenerator(
-    const ros::NodeHandle &nh,
-    std::shared_ptr<grid_map::GridMap> global_map_ptr,
-    std::vector<std::string> layers)
-    : nh_(nh), m_grid_map_ptr(global_map_ptr), m_layers(layers) {
-
+GridMapGenerator::GridMapGenerator(const ros::NodeHandle &nh,
+                                   grid_map::GridMap &global_map)
+    : nh_(nh), m_grid_map(global_map) {
   // 初始化 GridMap
-  m_grid_map = *m_grid_map_ptr;
+  m_layers = m_grid_map.getLayers();
 
   m_grid_map.setFrameId("world");
   m_grid_map.setGeometry(
       grid_map::Length(m_length, m_width), m_resolution,
       grid_map::Position(m_map_start_pos_x, m_map_start_pos_y));
 
-  generateGridMap();
-  random_generate_obs(20, std::min(m_length, m_width) / 25,
-                      std::max(m_length, m_width) / 10);
-  // 发布 GridMap
-  m_map_publisher = nh_.advertise<grid_map_msgs::GridMap>("grid_map", 1);
-  m_map_publish_timer =
-      nh_.createTimer(ros::Duration(0.033),
-                      boost::bind(&GridMapGenerator::mapPubTimerCB, this, _1));
-  m_map_publish_timer.start();
-  m_dynamic_object_timer = nh_.createTimer(
-      ros::Duration(0.02),
-      boost::bind(&GridMapGenerator::generate_dynamic_object, this, _1));
-  m_dynamic_object_timer.start();
+  // 初始化不同图层
+  initGridMap();
+}
+
+void GridMapGenerator::initGridMap() {
+  // 设置地图上的高度值
+  for (GridMapIterator it(m_grid_map); !it.isPastEnd(); ++it) {
+    for (string layer : m_layers) {
+      m_grid_map.at(layer, *it) = 0.0;
+    }
+  }
+
+  unordered_set<string> layer_set(m_layers.begin(), m_layers.end());
+  if (layer_set.find("static_obstacle") != layer_set.end()) {
+    // 处理 static_obstacle 层
+    int radius_min = std::min(m_length, m_width) / 25;
+    int radius_max = std::max(m_length, m_width) / 10;
+    initStaticObstacleLayer(20, radius_min, radius_max);
+  }
+  if (layer_set.find("dynamic_obstacle") != layer_set.end()) {
+    // 处理 dynamic_obstacle 层
+    m_dynamic_object_timer = nh_.createTimer(
+        ros::Duration(0.02),
+        boost::bind(&GridMapGenerator::generate_dynamic_object, this, _1));
+    m_dynamic_object_timer.start();
+  }
+  if (layer_set.find("slope") != layer_set.end()) {
+    // 处理 slope 层
+  }
+  if (layer_set.find("semantic") != layer_set.end()) {
+    // 处理 semantic 层
+  }
+  if (layer_set.find("elevation") != layer_set.end()) {
+    // 处理 elevation 层
+    initElevationLayer();
+  }
+}
+
+void GridMapGenerator::initStaticObstacleLayer(int circle_num,
+                                               double radius_min,
+                                               double radius_max) {
+  random_generate_obs(circle_num, radius_min, radius_max);
+}
+
+void GridMapGenerator::initElevationLayer() {
+  for (GridMapIterator it(m_grid_map); !it.isPastEnd(); ++it) {
+    for (string layer : m_layers) {
+      if (layer == "static_obstacle" ||  //
+          layer == "dynamic_obstacle" || //
+          layer == "slope") {
+        m_grid_map.at("elevation", *it) += m_grid_map.at(layer, *it);
+      }
+    }
+  }
 }
 
 bool GridMapGenerator::isPointInPolygon(double x, double y) {
@@ -61,10 +101,6 @@ bool GridMapGenerator::isPointInPolygon(double x, double y) {
 
 void GridMapGenerator::random_generate_obs(int circle_num, double radius_min,
                                            double radius_max) {
-  // radius_min = std::min(m_length, m_width) / 25;
-  // radius_max = std::max(m_length, m_width) / 10;
-  // circle_num = 10;
-
   std::random_device rd; // 获取硬件随机数生成器的种子
   std::mt19937 gen(rd()); // 使用梅森旋转算法（Mersenne Twister）生成随机数
   std::uniform_int_distribution<> dis(1, 1000); // 定义随机数范围为1到1000
@@ -80,6 +116,10 @@ void GridMapGenerator::random_generate_obs(int circle_num, double radius_min,
     }
     return false;
   };
+  auto close_to_origin = [](grid_map::Position cur_center) -> bool {
+    double dis = sqrt(pow(cur_center.x(), 2) + pow(cur_center.y(), 2));
+    return dis < 3.0;
+  };
   for (int i = 0; i < circle_num; i++) {
     // 首先决定半径
     double radius = radius_min + dis(gen) / 1000.0 * (radius_max - radius_min);
@@ -87,7 +127,7 @@ void GridMapGenerator::random_generate_obs(int circle_num, double radius_min,
     grid_map::Position cur_center;
     cur_center.x() = dis(gen) / 1000.0 * m_length - m_length / 2;
     cur_center.y() = dis(gen) / 1000.0 * m_width - m_width / 2;
-    if (tooclose(cur_center)) {
+    if (tooclose(cur_center) || close_to_origin(cur_center)) {
       i--;
       continue;
     }
@@ -97,7 +137,7 @@ void GridMapGenerator::random_generate_obs(int circle_num, double radius_min,
     if (seed < 300) {
       for (grid_map::CircleIterator iterator(m_grid_map, cur_center, radius);
            !iterator.isPastEnd(); ++iterator) {
-        m_grid_map.at("elevation", *iterator) = 1.5;
+        m_grid_map.at("static_obstacle", *iterator) = 1.5;
       }
     } else if (300 <= seed && seed < 400) {
       grid_map::Length length(2 * radius * dis(gen) / 1000.0,
@@ -105,12 +145,12 @@ void GridMapGenerator::random_generate_obs(int circle_num, double radius_min,
       for (grid_map::EllipseIterator iterator(m_grid_map, cur_center, length,
                                               dis(gen) / 1000.0 * M_PI * 2);
            !iterator.isPastEnd(); ++iterator) {
-        m_grid_map.at("elevation", *iterator) = 1.5;
+        m_grid_map.at("static_obstacle", *iterator) = 1.5;
       }
     } else if (400 <= seed && seed < 600) {
       for (grid_map::SpiralIterator iterator(m_grid_map, cur_center, radius);
            !iterator.isPastEnd(); ++iterator) {
-        m_grid_map.at("elevation", *iterator) = 1.5;
+        m_grid_map.at("static_obstacle", *iterator) = 1.5;
       }
     } else if (600 <= seed && seed < 650) {
       double theta = 2 * M_PI * dis(gen) / 1000.0;
@@ -120,7 +160,7 @@ void GridMapGenerator::random_generate_obs(int circle_num, double radius_min,
                              cur_center.y() - radius * sin(theta));
       for (grid_map::LineIterator iterator(m_grid_map, start, end);
            !iterator.isPastEnd(); ++iterator) {
-        m_grid_map.at("elevation", *iterator) = 1.5;
+        m_grid_map.at("static_obstacle", *iterator) = 1.5;
       }
     } else if (650 <= seed && seed <= 1000) {
       int polygon_num = dis(gen) % 4 + 3;
@@ -134,7 +174,7 @@ void GridMapGenerator::random_generate_obs(int circle_num, double radius_min,
       }
       for (grid_map::PolygonIterator iterator(m_grid_map, polygon);
            !iterator.isPastEnd(); ++iterator) {
-        m_grid_map.at("elevation", *iterator) = 1.5;
+        m_grid_map.at("static_obstacle", *iterator) = 1.5;
       }
     }
   }
@@ -177,33 +217,6 @@ void GridMapGenerator::createPolygons(
     m_polygons.push_back(polygon);
   }
   return;
-}
-
-void GridMapGenerator::generateGridMap() {
-
-  // 设置地图上的高度值
-  for (GridMapIterator it(m_grid_map); !it.isPastEnd(); ++it) {
-    // Position position;
-    // m_grid_map.getPosition(*it, position);
-
-    m_grid_map.at("elevation", *it) = 0.0;        // 区域外高度为 0
-    m_grid_map.at("dynamic_obstacle", *it) = 0.0; // 区域外高度为 0
-  }
-}
-
-void GridMapGenerator::publishGridMap() {
-  grid_map_msgs::GridMap grid_map_msg;
-  grid_map::GridMapRosConverter::toMessage(m_grid_map, grid_map_msg);
-  m_map_publisher.publish(grid_map_msg);
-}
-
-void GridMapGenerator::generateAndPublishMap() {
-  generateGridMap();
-  publishGridMap();
-}
-
-void GridMapGenerator::mapPubTimerCB(const ros::TimerEvent &e) {
-  publishGridMap();
 }
 
 double GridMapGenerator::getOccupancy(double x, double y,

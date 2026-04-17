@@ -139,6 +139,7 @@ include_directories(
 ## Declare a C++ library
 add_library(${PROJECT_NAME}_lib
   src/grid_map_generator.cpp
+  src/grid_map_publisher.cpp
 )
 
 ## Link the library against catkin libraries
