@@ -7,9 +7,11 @@ Panels:
         - /Global Options1
         - /Status1
         - /地图相关1
-        - /地图相关1/semantic1
+        - /地图相关1/static_obstacle_cost层1
+        - /地图相关1/semantic_cost层1
+        - /地图相关1/slope_cost层1
         - /MarkerArray4
-      Splitter Ratio: 0.5
+      Splitter Ratio: 0.4387291967868805
     Tree Height: 991
   - Class: rviz/Selection
     Name: Selection
@@ -76,7 +78,7 @@ Visualization Manager:
           Autocompute Intensity Bounds: true
           Class: grid_map_rviz_plugin/GridMap
           Color: 138; 226; 52
-          Color Layer: elevation
+          Color Layer: static_obstacle
           Color Transformer: IntensityLayer
           Enabled: false
           Height Layer: static_obstacle
@@ -94,7 +96,7 @@ Visualization Manager:
           Use Rainbow: false
           Value: false
         - Alpha: 1
-          Autocompute Intensity Bounds: false
+          Autocompute Intensity Bounds: true
           Class: grid_map_rviz_plugin/GridMap
           Color: 200; 200; 200
           Color Layer: slope
@@ -141,7 +143,7 @@ Visualization Manager:
           Color: 200; 200; 200
           Color Layer: semantic
           Color Transformer: ColorLayer
-          Enabled: true
+          Enabled: false
           Height Layer: semantic
           Height Transformer: Layer
           History Length: 1
@@ -151,6 +153,69 @@ Visualization Manager:
           Min Color: 0; 0; 0
           Min Intensity: 0
           Name: semantic
+          Show Grid Lines: true
+          Topic: /map_generator_node/grid_map
+          Unreliable: false
+          Use Rainbow: false
+          Value: false
+        - Alpha: 1
+          Autocompute Intensity Bounds: true
+          Class: grid_map_rviz_plugin/GridMap
+          Color: 200; 200; 200
+          Color Layer: static_obstacle_cost
+          Color Transformer: IntensityLayer
+          Enabled: true
+          Height Layer: static_obstacle_cost
+          Height Transformer: Layer
+          History Length: 1
+          Invert Rainbow: false
+          Max Color: 255; 25; 0
+          Max Intensity: 10
+          Min Color: 52; 101; 164
+          Min Intensity: 0
+          Name: static_obstacle_cost层
+          Show Grid Lines: true
+          Topic: /map_generator_node/grid_map
+          Unreliable: false
+          Use Rainbow: false
+          Value: true
+        - Alpha: 1
+          Autocompute Intensity Bounds: true
+          Class: grid_map_rviz_plugin/GridMap
+          Color: 200; 200; 200
+          Color Layer: semantic_cost
+          Color Transformer: IntensityLayer
+          Enabled: true
+          Height Layer: semantic_cost
+          Height Transformer: Layer
+          History Length: 1
+          Invert Rainbow: false
+          Max Color: 255; 25; 0
+          Max Intensity: 10
+          Min Color: 52; 101; 164
+          Min Intensity: 0
+          Name: semantic_cost层
+          Show Grid Lines: true
+          Topic: /map_generator_node/grid_map
+          Unreliable: false
+          Use Rainbow: false
+          Value: true
+        - Alpha: 1
+          Autocompute Intensity Bounds: true
+          Class: grid_map_rviz_plugin/GridMap
+          Color: 200; 200; 200
+          Color Layer: slope_cost
+          Color Transformer: IntensityLayer
+          Enabled: true
+          Height Layer: slope_cost
+          Height Transformer: Layer
+          History Length: 1
+          Invert Rainbow: false
+          Max Color: 255; 25; 0
+          Max Intensity: 10
+          Min Color: 52; 101; 164
+          Min Intensity: 0
+          Name: slope_cost层
           Show Grid Lines: true
           Topic: /map_generator_node/grid_map
           Unreliable: false
@@ -235,7 +300,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/XYOrbit
-      Distance: 34.27935791015625
+      Distance: 29.92302131652832
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -243,8 +308,8 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: -5.422112464904785
-        Y: -1.7268648147583008
+        X: -6.07656192779541
+        Y: -0.5901768803596497
         Z: 6.973979907343164e-06
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
@@ -253,7 +318,7 @@ Visualization Manager:
       Near Clip Distance: 0.009999999776482582
       Pitch: 1.5697963237762451
       Target Frame: <Fixed Frame>
-      Yaw: 3.1386351585388184
+      Yaw: 3.153660297393799
     Saved: ~
 Window Geometry:
   Displays:

@@ -16,12 +16,12 @@ int main(int argc, char **argv) {
       "elevation",       //
       "static_obstacle", // 静态障碍物
       // "dynamic_obstacle", // 动态障碍物
-      "slope",         // 坡度
-      "semantic",      // 语义信息
-      "obstacle_cost", // 障碍物成本
-      "slope_cost",    // 坡度成本
-      "semantic_cost", // 语义成本
-      "total_cost"     // 总成本
+      "slope",                // 坡度
+      "semantic",             // 语义信息
+      "static_obstacle_cost", // 障碍物成本
+      "slope_cost",           // 坡度成本
+      "semantic_cost",        // 语义成本
+      "total_cost"            // 总成本
   };
   // 创建 GridMap 对象
   // TODO: 这里需要把global_map使用的一些参数给抽象出来，单独给进去

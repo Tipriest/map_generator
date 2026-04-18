@@ -1,4 +1,7 @@
 #include "grid_map_generator.h"
+
+#include <ros/package.h>
+
 #include "unordered_set"
 
 using namespace grid_map;
@@ -30,8 +33,8 @@ void GridMapGenerator::initGridMap() {
   unordered_set<string> layer_set(m_layers.begin(), m_layers.end());
   if (layer_set.find("static_obstacle") != layer_set.end()) {
     // 处理 static_obstacle 层
-    int radius_min = std::min(m_length, m_width) / 25;
-    int radius_max = std::max(m_length, m_width) / 10;
+    int radius_min = std::min(m_length, m_width) / 30;
+    int radius_max = std::max(m_length, m_width) / 15;
     initStaticObstacleLayer(20, radius_min, radius_max);
   }
   if (layer_set.find("dynamic_obstacle") != layer_set.end()) {
@@ -41,21 +44,15 @@ void GridMapGenerator::initGridMap() {
         boost::bind(&GridMapGenerator::generate_dynamic_object, this, _1));
     m_dynamic_object_timer.start();
   }
+  const string package_path = ros::package::getPath("map_generator");
   if (layer_set.find("slope") != layer_set.end()) {
     // 处理 slope 层
-    string png_file_name = "terrain_level1.png";
-    string png_file_path =
-        "/home/tipriest/Documents/MasterDegree/path_follower_ws/src/"
-        "map_generator/assets/terrain_level1.png";
+    const string png_file_path = package_path + "/assets/terrain_level1.png";
     initSlopeLayer(png_file_path, -1.0, 3.0);
   }
   if (layer_set.find("semantic") != layer_set.end()) {
     // 处理 semantic 层
-    // 处理 slope 层
-    string png_file_name = "rgb1.png";
-    string png_file_path =
-        "/home/tipriest/Documents/MasterDegree/path_follower_ws/src/"
-        "map_generator/assets/rgb1.png";
+    const string png_file_path = package_path + "/assets/rgb1.png";
     initSemanticLayer(png_file_path);
   }
   if (layer_set.find("elevation") != layer_set.end()) {
