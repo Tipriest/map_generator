@@ -6,11 +6,9 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
-        - /GridMap1
-        - /Marker2
-        - /GridMap2
-        - /MarkerArray2
-        - /Marker3
+        - /地图相关1
+        - /地图相关1/slope层1
+        - /MarkerArray4
       Splitter Ratio: 0.5
     Tree Height: 991
   - Class: rviz/Selection
@@ -72,27 +70,52 @@ Visualization Manager:
         {}
       Queue Size: 100
       Value: true
-    - Alpha: 1
-      Autocompute Intensity Bounds: true
-      Class: grid_map_rviz_plugin/GridMap
-      Color: 138; 226; 52
-      Color Layer: elevation
-      Color Transformer: IntensityLayer
+    - Class: rviz/Group
+      Displays:
+        - Alpha: 1
+          Autocompute Intensity Bounds: true
+          Class: grid_map_rviz_plugin/GridMap
+          Color: 138; 226; 52
+          Color Layer: elevation
+          Color Transformer: IntensityLayer
+          Enabled: false
+          Height Layer: static_obstacle
+          Height Transformer: Layer
+          History Length: 1
+          Invert Rainbow: false
+          Max Color: 20; 67; 40
+          Max Intensity: 10
+          Min Color: 254; 255; 215
+          Min Intensity: 0
+          Name: static_obstacle层
+          Show Grid Lines: true
+          Topic: /map_generator_node/grid_map
+          Unreliable: false
+          Use Rainbow: false
+          Value: false
+        - Alpha: 1
+          Autocompute Intensity Bounds: false
+          Class: grid_map_rviz_plugin/GridMap
+          Color: 200; 200; 200
+          Color Layer: slope
+          Color Transformer: IntensityLayer
+          Enabled: true
+          Height Layer: slope
+          Height Transformer: Layer
+          History Length: 1
+          Invert Rainbow: true
+          Max Color: 32; 74; 135
+          Max Intensity: 1
+          Min Color: 254; 255; 215
+          Min Intensity: -0.8999999761581421
+          Name: slope层
+          Show Grid Lines: true
+          Topic: /map_generator_node/grid_map
+          Unreliable: true
+          Use Rainbow: false
+          Value: true
       Enabled: true
-      Height Layer: elevation
-      Height Transformer: Layer
-      History Length: 1
-      Invert Rainbow: false
-      Max Color: 20; 67; 40
-      Max Intensity: 10
-      Min Color: 254; 255; 215
-      Min Intensity: 0
-      Name: GridMap
-      Show Grid Lines: true
-      Topic: /map_generator_node/grid_map
-      Unreliable: false
-      Use Rainbow: false
-      Value: true
+      Name: 地图相关
     - Class: rviz/Marker
       Enabled: true
       Marker Topic: /trajectory_optimization_node/search_path_vis
@@ -106,21 +129,21 @@ Visualization Manager:
       Class: grid_map_rviz_plugin/GridMap
       Color: 200; 200; 200
       Color Layer: elevation
-      Color Transformer: IntensityLayer
+      Color Transformer: GridMapLayer
       Enabled: false
       Height Layer: elevation
-      Height Transformer: Layer
+      Height Transformer: GridMapLayer
       History Length: 1
       Invert Rainbow: false
-      Max Color: 12; 24; 79
+      Max Color: 255; 255; 255
       Max Intensity: 10
-      Min Color: 254; 255; 215
+      Min Color: 0; 0; 0
       Min Intensity: 0
-      Name: GridMap
+      Name: elevation层
       Show Grid Lines: true
-      Topic: /map_generator_node/grid_map
+      Topic: /map_generator_node/grid_map_processed
       Unreliable: false
-      Use Rainbow: false
+      Use Rainbow: true
       Value: false
     - Class: rviz/MarkerArray
       Enabled: true
@@ -145,27 +168,6 @@ Visualization Manager:
       Namespaces:
         {}
       Queue Size: 100
-      Value: true
-    - Alpha: 1
-      Autocompute Intensity Bounds: true
-      Class: grid_map_rviz_plugin/GridMap
-      Color: 200; 200; 200
-      Color Layer: elevation
-      Color Transformer: GridMapLayer
-      Enabled: true
-      Height Layer: elevation
-      Height Transformer: GridMapLayer
-      History Length: 1
-      Invert Rainbow: false
-      Max Color: 255; 255; 255
-      Max Intensity: 10
-      Min Color: 0; 0; 0
-      Min Intensity: 0
-      Name: GridMap
-      Show Grid Lines: true
-      Topic: /map_generator_node/grid_map_processed
-      Unreliable: false
-      Use Rainbow: true
       Value: true
     - Alpha: 1
       Class: rviz/Axes
@@ -212,7 +214,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/XYOrbit
-      Distance: 30.361778259277344
+      Distance: 27.327293395996094
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -220,17 +222,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: -5.180820465087891
-        Y: -0.2876642942428589
-        Z: 2.6851876100408845e-06
+        X: -5.422112464904785
+        Y: -1.7268648147583008
+        Z: 6.973979907343164e-06
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 1.5697963237762451
+      Pitch: 0.8147958517074585
       Target Frame: <Fixed Frame>
-      Yaw: 3.143596649169922
+      Yaw: 3.1186282634735107
     Saved: ~
 Window Geometry:
   Displays:

@@ -1,11 +1,14 @@
 #pragma once
 
 #include <algorithm>
+#include <cv_bridge/cv_bridge.h>
 #include <geometry_msgs/Point32.h>
 #include <geometry_msgs/Polygon.h>
 #include <grid_map_core/grid_map_core.hpp>
 #include <grid_map_msgs/GridMap.h>
 #include <grid_map_ros/grid_map_ros.hpp>
+#include <opencv2/imgcodecs.hpp>
+#include <opencv2/imgproc.hpp>
 #include <random>
 #include <ros/ros.h>
 #include <string>
@@ -29,6 +32,9 @@ public:
   void generate_dynamic_object(const ros::TimerEvent &e);
   void initStaticObstacleLayer(int circle_num, double radius_min,
                                double radius_max);
+  void initSlopeLayer(std::string png_file_name, double min_height,
+                      double max_height);
+  void initSemanticLayer(std::string png_file_name);
   void initElevationLayer();
 
 private:

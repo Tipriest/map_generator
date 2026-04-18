@@ -43,6 +43,11 @@ void GridMapGenerator::initGridMap() {
   }
   if (layer_set.find("slope") != layer_set.end()) {
     // 处理 slope 层
+    string png_file_name = "terrain_level1.png";
+    string png_file_path =
+        "/home/tipriest/Documents/MasterDegree/path_follower_ws/src/"
+        "map_generator/assets/terrain_level1.png";
+    initSlopeLayer(png_file_path, -1.0, 3.0);
   }
   if (layer_set.find("semantic") != layer_set.end()) {
     // 处理 semantic 层
@@ -68,6 +73,60 @@ void GridMapGenerator::initElevationLayer() {
         m_grid_map.at("elevation", *it) += m_grid_map.at(layer, *it);
       }
     }
+  }
+}
+
+void GridMapGenerator::initSlopeLayer(string png_file_name, double min_height,
+                                      double max_height) {
+  // 使用opencv读取png
+  cv::Mat img = cv::imread(png_file_name, cv::IMREAD_UNCHANGED);
+  if (img.empty()) {
+    ROS_ERROR("Failed to read image file: %s", png_file_name.c_str());
+    return;
+  }
+  // 转换为单通道灰度
+  if (img.channels() == 3) {
+    cv::cvtColor(img, img, cv::COLOR_BGR2GRAY);
+  } else if (img.channels() == 4) {
+    cv::cvtColor(img, img, cv::COLOR_BGRA2GRAY);
+  }
+  // 深度转换,把格式都统一成16UC1的格式
+  if (img.type() != CV_16UC1) {
+    double minv = 0.0, maxv = 0.0;
+    cv::minMaxLoc(img, &minv, &maxv);
+    img.convertTo(img, CV_16UC1, 65535.0 / (maxv - minv),
+                  -minv * 65535.0 / (maxv - minv));
+  }
+
+  // 需要与grid_map的坐标系保持一致，原点在左上
+  // cv::flip(img, img, 0);
+
+  // 使得cv::Image的尺寸与GridMap的尺寸保持一致
+  grid_map::Size map_size = m_grid_map.getSize(); //(cells_x, cells_y)
+  if (img.cols != map_size.x() || img.rows != map_size.y()) {
+    cv::resize(img, img, cv::Size(map_size.x(), map_size.y()), 0, 0,
+               cv::INTER_NEAREST);
+  }
+
+  // 使用cv_bridge将opencv的图像转换为ROS的Image消息
+  cv_bridge::CvImage cv_image;
+  cv_image.encoding = "mono16";
+  cv_image.image = img;
+  cv_image.header.stamp = ros::Time::now();
+  cv_image.header.frame_id = m_grid_map.getFrameId();
+  sensor_msgs::Image msg;
+  cv_image.toImageMsg(msg);
+
+  grid_map::GridMapRosConverter::addLayerFromImage(msg, "slope", m_grid_map,
+                                                   min_height, max_height);
+
+  // 找一下整个grid_map正中心现在的高度是多少，然后作为一个bias将整个grid_map的slope的层都调整成这样
+  double center_x = m_grid_map.getLength().x() / 2.0 + m_leftdown_offset_x;
+  double center_y = m_grid_map.getLength().y() / 2.0 + m_leftdown_offset_y;
+  double center_height = m_grid_map.atPosition("slope", grid_map::Position(center_x, center_y));
+  // // 调整slope层的高度
+  for (grid_map::GridMapIterator it(m_grid_map); !it.isPastEnd(); ++it) {
+    m_grid_map.at("slope", *it) -= center_height;
   }
 }
 
