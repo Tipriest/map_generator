@@ -51,6 +51,12 @@ void GridMapGenerator::initGridMap() {
   }
   if (layer_set.find("semantic") != layer_set.end()) {
     // 处理 semantic 层
+    // 处理 slope 层
+    string png_file_name = "rgb1.png";
+    string png_file_path =
+        "/home/tipriest/Documents/MasterDegree/path_follower_ws/src/"
+        "map_generator/assets/rgb1.png";
+    initSemanticLayer(png_file_path);
   }
   if (layer_set.find("elevation") != layer_set.end()) {
     // 处理 elevation 层
@@ -123,11 +129,41 @@ void GridMapGenerator::initSlopeLayer(string png_file_name, double min_height,
   // 找一下整个grid_map正中心现在的高度是多少，然后作为一个bias将整个grid_map的slope的层都调整成这样
   double center_x = m_grid_map.getLength().x() / 2.0 + m_leftdown_offset_x;
   double center_y = m_grid_map.getLength().y() / 2.0 + m_leftdown_offset_y;
-  double center_height = m_grid_map.atPosition("slope", grid_map::Position(center_x, center_y));
+  double center_height =
+      m_grid_map.atPosition("slope", grid_map::Position(center_x, center_y));
   // // 调整slope层的高度
   for (grid_map::GridMapIterator it(m_grid_map); !it.isPastEnd(); ++it) {
     m_grid_map.at("slope", *it) -= center_height;
   }
+}
+
+void GridMapGenerator::initSemanticLayer(string png_file_name) {
+  // 1) 用 OpenCV 读取 PNG(彩色)
+  cv::Mat img = cv::imread(png_file_name, cv::IMREAD_COLOR);
+  if (img.empty()) {
+    ROS_ERROR("Failed to read semantic image file: %s", png_file_name.c_str());
+    return;
+  }
+
+  // 使得cv::Image的尺寸与GridMap的尺寸保持一致
+  grid_map::Size map_size = m_grid_map.getSize(); //(cells_x, cells_y)
+  if (img.cols != map_size.x() || img.rows != map_size.y()) {
+    cv::resize(img, img, cv::Size(map_size.x(), map_size.y()), 0, 0,
+               cv::INTER_NEAREST);
+  }
+
+  // 3) 使用 cv_bridge 转成 ROS 的 Image（encoding: bgr8）
+  cv_bridge::CvImage cv_image;
+  cv::cvtColor(img, img, cv::COLOR_BGR2RGB);
+  cv_image.encoding = "rgb8";
+  cv_image.image = img;
+  cv_image.header.stamp = ros::Time::now();
+  cv_image.header.frame_id = m_grid_map.getFrameId();
+  sensor_msgs::Image msg;
+  cv_image.toImageMsg(msg);
+
+  grid_map::GridMapRosConverter::addColorLayerFromImage(msg, "semantic",
+                                                        m_grid_map);
 }
 
 bool GridMapGenerator::isPointInPolygon(double x, double y) {

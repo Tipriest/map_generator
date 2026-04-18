@@ -7,7 +7,7 @@ Panels:
         - /Global Options1
         - /Status1
         - /地图相关1
-        - /地图相关1/slope层1
+        - /地图相关1/semantic1
         - /MarkerArray4
       Splitter Ratio: 0.5
     Tree Height: 991
@@ -99,7 +99,7 @@ Visualization Manager:
           Color: 200; 200; 200
           Color Layer: slope
           Color Transformer: IntensityLayer
-          Enabled: true
+          Enabled: false
           Height Layer: slope
           Height Transformer: Layer
           History Length: 1
@@ -113,6 +113,48 @@ Visualization Manager:
           Topic: /map_generator_node/grid_map
           Unreliable: true
           Use Rainbow: false
+          Value: false
+        - Alpha: 1
+          Autocompute Intensity Bounds: true
+          Class: grid_map_rviz_plugin/GridMap
+          Color: 200; 200; 200
+          Color Layer: elevation
+          Color Transformer: GridMapLayer
+          Enabled: false
+          Height Layer: elevation
+          Height Transformer: GridMapLayer
+          History Length: 1
+          Invert Rainbow: false
+          Max Color: 255; 255; 255
+          Max Intensity: 10
+          Min Color: 0; 0; 0
+          Min Intensity: 0
+          Name: elevation层
+          Show Grid Lines: true
+          Topic: /map_generator_node/grid_map
+          Unreliable: false
+          Use Rainbow: true
+          Value: false
+        - Alpha: 1
+          Autocompute Intensity Bounds: true
+          Class: grid_map_rviz_plugin/GridMap
+          Color: 200; 200; 200
+          Color Layer: semantic
+          Color Transformer: ColorLayer
+          Enabled: true
+          Height Layer: semantic
+          Height Transformer: Layer
+          History Length: 1
+          Invert Rainbow: false
+          Max Color: 255; 255; 255
+          Max Intensity: 10
+          Min Color: 0; 0; 0
+          Min Intensity: 0
+          Name: semantic
+          Show Grid Lines: true
+          Topic: /map_generator_node/grid_map
+          Unreliable: false
+          Use Rainbow: false
           Value: true
       Enabled: true
       Name: 地图相关
@@ -124,27 +166,6 @@ Visualization Manager:
         {}
       Queue Size: 100
       Value: true
-    - Alpha: 1
-      Autocompute Intensity Bounds: true
-      Class: grid_map_rviz_plugin/GridMap
-      Color: 200; 200; 200
-      Color Layer: elevation
-      Color Transformer: GridMapLayer
-      Enabled: false
-      Height Layer: elevation
-      Height Transformer: GridMapLayer
-      History Length: 1
-      Invert Rainbow: false
-      Max Color: 255; 255; 255
-      Max Intensity: 10
-      Min Color: 0; 0; 0
-      Min Intensity: 0
-      Name: elevation层
-      Show Grid Lines: true
-      Topic: /map_generator_node/grid_map_processed
-      Unreliable: false
-      Use Rainbow: true
-      Value: false
     - Class: rviz/MarkerArray
       Enabled: true
       Marker Topic: /trajectory_optimization/start_end_point
@@ -214,7 +235,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/XYOrbit
-      Distance: 27.327293395996094
+      Distance: 34.27935791015625
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -230,9 +251,9 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.8147958517074585
+      Pitch: 1.5697963237762451
       Target Frame: <Fixed Frame>
-      Yaw: 3.1186282634735107
+      Yaw: 3.1386351585388184
     Saved: ~
 Window Geometry:
   Displays:
