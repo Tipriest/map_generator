@@ -140,6 +140,7 @@ include_directories(
 add_library(${PROJECT_NAME}_lib
   src/grid_map_generator.cpp
   src/grid_map_publisher.cpp
+  src/grid_map_cost_calculator.cpp
 )
 
 ## Link the library against catkin libraries
