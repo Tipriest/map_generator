@@ -41,7 +41,7 @@ int main(int argc, char **argv) {
   // 创建GridMapPublisher对象
   GridMapPublisher grid_map_publisher = GridMapPublisher(nh, global_map);
 
-  ros::Rate rate(100);
+  ros::Rate rate(5);
   // 使用单线程
   while (true) {
     ros::spinOnce();

@@ -17,9 +17,9 @@ class GridMapGenerator {
 public:
   GridMapGenerator(const ros::NodeHandle &nh, grid_map::GridMap &global_map);
 
-  double m_length = 20.0;
-  double m_width = 20.0;
-  double m_resolution = 0.1;
+  double m_length = 50.0;
+  double m_width = 50.0;
+  double m_resolution = 0.2;
   double m_map_start_pos_x = 0.0;
   double m_map_start_pos_y = 0.0;
   double m_leftdown_offset_x = m_map_start_pos_x - m_length / 2;

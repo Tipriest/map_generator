@@ -37,7 +37,7 @@ private:
   struct SemanticClassParam {
     bool obstacle = false; // 是否把该颜色视为障碍（用于距离约束）
     double base_cost = 0.0; // 该颜色自身的基准代价
-    double max_cost = 5.0; // 最大代价（阈值内或在障碍上）
+    double max_cost = 5.0;  // 最大代价（阈值内或在障碍上）
     double alpha = 0.5;     // 距离衰减尺度（米），越小衰减越快
     double distance_threshold = 1.0; // 距离阈值（米），阈值内直接取 max_cost
   };
@@ -60,10 +60,19 @@ private:
                                   const std::string &dst_cost_layer);
   ////////////////////////////////////////////////////////////////////////
   // slope cost function parameters
-  const double slope_free_deg = 10.0;  // 低于该坡度角，无代价
+  const double slope_free_deg = 10.0; // 低于该坡度角，无代价
   const double slope_max_deg = 25.0;  // 高于该坡度角，最大代价
-  const double slope_cost_max = 5.0; // 最大代价
+  const double slope_cost_max = 5.0;  // 最大代价
   const double slope_kp = 2.0;        // 曲线陡峭度（>1 更陡）
   void calculateSlopeLayerCost(const std::string &slope_layer,
                                const std::string &dst_cost_layer);
+
+  /////////////////////////////////////////////////////////////////////////
+  // cal total cost
+  void calculateTotalCost(const std::string &dst_cost_layer);
+  const double total_cost_static_obstacle_w = 1.0;
+  const double total_cost_slope_w = 1.0;
+  const double total_cost_semantic_w = 1.0;
+  const double total_cost_max = 5.0;
+
 };

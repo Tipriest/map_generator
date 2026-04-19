@@ -43,6 +43,7 @@ GridMapCostCalculator::GridMapCostCalculator(ros::NodeHandle &nh,
 
   calculateSemanticLayerCost("semantic", "semantic_cost");
   calculateSlopeLayerCost("slope", "slope_cost");
+  calculateTotalCost("total_cost");
 }
 void GridMapCostCalculator::addSdfLayer(std::string src_layer,
                                         std::string dst_layer) {
@@ -295,4 +296,59 @@ void GridMapCostCalculator::calculateSlopeLayerCost(
   m_grid_map.add(dst_cost_layer, cost);
   ROS_INFO("Slope cost layer '%s' computed from '%s'.", dst_cost_layer.c_str(),
            slope_layer.c_str());
+}
+
+void GridMapCostCalculator::calculateTotalCost(const std::string &dst_cost_layer) {
+  const std::string static_layer = "static_obstacle_cost";
+  const std::string slope_layer = "slope_cost";
+  const std::string semantic_layer = "semantic_cost";
+
+  if (!m_grid_map.exists(static_layer) || !m_grid_map.exists(slope_layer) ||
+      !m_grid_map.exists(semantic_layer)) {
+    ROS_ERROR("One or more cost layers do not exist.");
+    return;
+  }
+
+  const grid_map::Size size = m_grid_map.getSize(); // (cells_x, cells_y)
+  const int nx = static_cast<int>(size(0));
+  const int ny = static_cast<int>(size(1));
+  if (nx <= 0 || ny <= 0) {
+    ROS_ERROR("Grid map has no geometry.");
+    return;
+  }
+
+  const grid_map::Matrix &cost_static = m_grid_map.get(static_layer);
+  const grid_map::Matrix &cost_slope = m_grid_map.get(slope_layer);
+  const grid_map::Matrix &cost_semantic = m_grid_map.get(semantic_layer);
+
+  grid_map::Matrix total_cost(ny, nx);
+  for (int y = 0; y < ny; ++y) {
+    for (int x = 0; x < nx; ++x) {
+      double c_static =
+          static_cast<double>(cost_static(y, x)) * total_cost_static_obstacle_w;
+      double c_slope =
+          static_cast<double>(cost_slope(y, x)) * total_cost_slope_w;
+      double c_semantic =
+          static_cast<double>(cost_semantic(y, x)) * total_cost_semantic_w;
+
+      // 简单加权和
+      double c_total = c_static + c_slope + c_semantic;
+      c_total = std::min(c_total, total_cost_max);
+
+      // 可选：归一化或限幅
+      // if (c_total > static_obstacle_max_cost + slope_cost_max +
+      //                   semantic_default_.max_cost) {
+      //   c_total = static_obstacle_max_cost + slope_cost_max +
+      //             semantic_default_.max_cost;
+      // }
+      total_cost(y, x) = static_cast<float>(c_total);
+    }
+  }
+
+  if (m_grid_map.exists(dst_cost_layer)) {
+    m_grid_map.erase(dst_cost_layer);
+  }
+  m_grid_map.add(dst_cost_layer, total_cost);
+  ROS_INFO("Total cost layer '%s' computed by combining static, slope and semantic costs.",
+           dst_cost_layer.c_str());
 }
