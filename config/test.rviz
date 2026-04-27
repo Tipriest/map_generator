@@ -8,6 +8,7 @@ Panels:
         - /Status1
         - /地图相关1
         - /地图相关1/static_obstacle层1
+        - /地图相关1/slope层1
         - /hybrid_astar_path1
         - /hybrid_astar_path1/searched_path1
         - /hybrid_astar_path1/vehicle_path1
@@ -42,7 +43,7 @@ Visualization Manager:
       Cell Size: 1
       Class: rviz/Grid
       Color: 160; 160; 164
-      Enabled: true
+      Enabled: false
       Line Style:
         Line Width: 0.029999999329447746
         Value: Lines
@@ -55,7 +56,7 @@ Visualization Manager:
       Plane: XY
       Plane Cell Count: 49
       Reference Frame: <Fixed Frame>
-      Value: true
+      Value: false
     - Class: rviz/MarkerArray
       Enabled: true
       Marker Topic: /trajectory_optimization/start_end_point
@@ -74,7 +75,7 @@ Visualization Manager:
       Value: true
     - Class: rviz/Group
       Displays:
-        - Alpha: 1
+        - Alpha: 0.6000000238418579
           Autocompute Intensity Bounds: true
           Class: grid_map_rviz_plugin/GridMap
           Color: 138; 226; 52
@@ -95,13 +96,13 @@ Visualization Manager:
           Unreliable: false
           Use Rainbow: false
           Value: true
-        - Alpha: 1
+        - Alpha: 0.800000011920929
           Autocompute Intensity Bounds: true
           Class: grid_map_rviz_plugin/GridMap
           Color: 200; 200; 200
           Color Layer: slope
           Color Transformer: IntensityLayer
-          Enabled: false
+          Enabled: true
           Height Layer: slope
           Height Transformer: Layer
           History Length: 1
@@ -115,7 +116,7 @@ Visualization Manager:
           Topic: /map_generator_node/grid_map
           Unreliable: true
           Use Rainbow: false
-          Value: false
+          Value: true
         - Alpha: 1
           Autocompute Intensity Bounds: true
           Class: grid_map_rviz_plugin/GridMap
@@ -324,7 +325,7 @@ Visualization Manager:
           Marker Topic: /run_hybrid_astar/vehicle_path
           Name: vehicle_path
           Namespaces:
-            "": true
+            {}
           Queue Size: 100
           Value: true
         - Alpha: 0.699999988079071
@@ -339,6 +340,14 @@ Visualization Manager:
           Value: true
       Enabled: true
       Name: hybrid_astar_path
+    - Class: rviz/MarkerArray
+      Enabled: true
+      Marker Topic: /arrow_markers
+      Name: MarkerArray
+      Namespaces:
+        arrows: true
+      Queue Size: 100
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 255; 255; 255
@@ -367,7 +376,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/XYOrbit
-      Distance: 69.34862518310547
+      Distance: 82.03799438476562
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -375,17 +384,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: -14.714860916137695
-        Y: -0.6208091974258423
-        Z: 6.973979907343164e-06
+        X: -0.7754196524620056
+        Y: 0.7066570520401001
+        Z: 0
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 1.5697963237762451
+      Pitch: 0.43039804697036743
       Target Frame: <Fixed Frame>
-      Yaw: 3.143686056137085
+      Yaw: 3.0835883617401123
     Saved: ~
 Window Geometry:
   Displays:

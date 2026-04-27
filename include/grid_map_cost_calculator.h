@@ -43,7 +43,7 @@ private:
   };
   std::unordered_map<uint32_t, SemanticClassParam> semantic_params_;
   SemanticClassParam semantic_default_{.obstacle = true,
-                                       .base_cost = 0.0,
+                                       .base_cost = 5.0,
                                        .max_cost = static_obstacle_max_cost,
                                        .alpha = 0.5,
                                        .distance_threshold =

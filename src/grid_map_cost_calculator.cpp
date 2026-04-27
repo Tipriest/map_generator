@@ -17,7 +17,41 @@ GridMapCostCalculator::GridMapCostCalculator(ros::NodeHandle &nh,
           .distance_threshold =
               1.0}); // 绿色区域：草地，可通行但比路面成本高些，不视为障碍
   setSemanticClassParam(
+      198, 255, 152,
+      SemanticClassParam{
+          .obstacle = false,
+          .base_cost = 0.0,
+          .max_cost = 5.0,
+          .alpha = 0.5,
+          .distance_threshold =
+              1.0}); // 绿色区域：草地，可通行但比路面成本高些，不视为障碍
+  setSemanticClassParam(
+      131, 254, 121,
+      SemanticClassParam{
+          .obstacle = false,
+          .base_cost = 0.0,
+          .max_cost = 5.0,
+          .alpha = 0.5,
+          .distance_threshold =
+              1.0}); // 绿色区域：草地，可通行但比路面成本高些，不视为障碍
+  setSemanticClassParam(
       148, 189, 237,
+      SemanticClassParam{.obstacle = true,
+                         .base_cost = 5.0,
+                         .max_cost = 5.0,
+                         .alpha = 0.7,
+                         .distance_threshold =
+                             0.5}); // 蓝色区域：水域，视为障碍
+  setSemanticClassParam(
+      152, 184, 234,
+      SemanticClassParam{.obstacle = true,
+                         .base_cost = 5.0,
+                         .max_cost = 5.0,
+                         .alpha = 0.7,
+                         .distance_threshold =
+                             0.5}); // 蓝色区域：水域，视为障碍
+  setSemanticClassParam(
+      158, 163, 219,
       SemanticClassParam{.obstacle = true,
                          .base_cost = 5.0,
                          .max_cost = 5.0,
@@ -298,14 +332,17 @@ void GridMapCostCalculator::calculateSlopeLayerCost(
            slope_layer.c_str());
 }
 
-void GridMapCostCalculator::calculateTotalCost(const std::string &dst_cost_layer) {
+void GridMapCostCalculator::calculateTotalCost(
+    const std::string &dst_cost_layer) {
   const std::string static_layer = "static_obstacle_cost";
   const std::string slope_layer = "slope_cost";
   const std::string semantic_layer = "semantic_cost";
 
-  if (!m_grid_map.exists(static_layer) || !m_grid_map.exists(slope_layer) ||
-      !m_grid_map.exists(semantic_layer)) {
-    ROS_ERROR("One or more cost layers do not exist.");
+  const bool has_static = m_grid_map.exists(static_layer);
+  const bool has_slope = m_grid_map.exists(slope_layer);
+  const bool has_semantic = m_grid_map.exists(semantic_layer);
+  if (!has_static && !has_slope && !has_semantic) {
+    ROS_ERROR("No cost layers exist; cannot compute total cost.");
     return;
   }
 
@@ -317,19 +354,30 @@ void GridMapCostCalculator::calculateTotalCost(const std::string &dst_cost_layer
     return;
   }
 
-  const grid_map::Matrix &cost_static = m_grid_map.get(static_layer);
-  const grid_map::Matrix &cost_slope = m_grid_map.get(slope_layer);
-  const grid_map::Matrix &cost_semantic = m_grid_map.get(semantic_layer);
+  const grid_map::Matrix *cost_static =
+      has_static ? &m_grid_map.get(static_layer) : nullptr;
+  const grid_map::Matrix *cost_slope =
+      has_slope ? &m_grid_map.get(slope_layer) : nullptr;
+  const grid_map::Matrix *cost_semantic =
+      has_semantic ? &m_grid_map.get(semantic_layer) : nullptr;
 
   grid_map::Matrix total_cost(ny, nx);
   for (int y = 0; y < ny; ++y) {
     for (int x = 0; x < nx; ++x) {
-      double c_static =
-          static_cast<double>(cost_static(y, x)) * total_cost_static_obstacle_w;
-      double c_slope =
-          static_cast<double>(cost_slope(y, x)) * total_cost_slope_w;
-      double c_semantic =
-          static_cast<double>(cost_semantic(y, x)) * total_cost_semantic_w;
+      double c_static = 0.0;
+      double c_slope = 0.0;
+      double c_semantic = 0.0;
+      if (cost_static) {
+        c_static = static_cast<double>((*cost_static)(y, x)) *
+                   total_cost_static_obstacle_w;
+      }
+      if (cost_slope) {
+        c_slope = static_cast<double>((*cost_slope)(y, x)) * total_cost_slope_w;
+      }
+      if (cost_semantic) {
+        c_semantic =
+            static_cast<double>((*cost_semantic)(y, x)) * total_cost_semantic_w;
+      }
 
       // 简单加权和
       double c_total = c_static + c_slope + c_semantic;
@@ -349,6 +397,8 @@ void GridMapCostCalculator::calculateTotalCost(const std::string &dst_cost_layer
     m_grid_map.erase(dst_cost_layer);
   }
   m_grid_map.add(dst_cost_layer, total_cost);
-  ROS_INFO("Total cost layer '%s' computed by combining static, slope and semantic costs.",
-           dst_cost_layer.c_str());
+  ROS_INFO(
+      "Total cost layer '%s' computed from: static=%s slope=%s semantic=%s.",
+      dst_cost_layer.c_str(), has_static ? "true" : "false",
+      has_slope ? "true" : "false", has_semantic ? "true" : "false");
 }

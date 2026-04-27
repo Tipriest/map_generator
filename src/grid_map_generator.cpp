@@ -47,12 +47,12 @@ void GridMapGenerator::initGridMap() {
   const string package_path = ros::package::getPath("map_generator");
   if (layer_set.find("slope") != layer_set.end()) {
     // 处理 slope 层
-    const string png_file_path = package_path + "/assets/terrain_level1.png";
-    initSlopeLayer(png_file_path, -1.0, 3.0);
+    const string png_file_path = package_path + "/assets/terrain_tsp.png";
+    initSlopeLayer(png_file_path, -1.0, 20.0);
   }
   if (layer_set.find("semantic") != layer_set.end()) {
     // 处理 semantic 层
-    const string png_file_path = package_path + "/assets/rgb1.png";
+    const string png_file_path = package_path + "/assets/rgb3.png";
     initSemanticLayer(png_file_path);
   }
   if (layer_set.find("elevation") != layer_set.end()) {
