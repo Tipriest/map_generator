@@ -1,6 +1,8 @@
 <launch>
   <!-- <group> -->
-    <node pkg="rviz" type="rviz" name="rviz" output="screen"
-    args="-d $(find map_generator)/config/test.rviz"/>
-    <node pkg="map_generator" type="map_generator_node" name="map_generator_node" output="screen" />
+  <node pkg="rviz" type="rviz" name="rviz" output="screen" args="-d $(find map_generator)/config/test.rviz"/>
+  <node pkg="map_generator" type="map_generator_node" name="map_generator_node" output="screen">
+    <rosparam command="load" file="$(find map_generator)/config/test_demo.yaml" />
+  </node>
+  <!-- </group> -->
 </launch>

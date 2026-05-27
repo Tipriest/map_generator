@@ -1,0 +1,62 @@
+used_layers:
+  - static_obstacles
+  - dynamic_obstacles
+  - semantics
+  - slope
+  - static_obstacle_cost
+  - dynamic_obstacle_cost
+  - semantic_cost
+  - slope_cost
+  - total_cost
+
+map_size:
+  x: 10.0
+  y: 10.0
+  resolution: 0.1
+
+frame_id: world
+map_topic: generated_map
+map_publish_rate: 5.0
+
+# static obstacle
+# mode: random, set
+static_obstacles_mode: random
+static_obstacles_num: 20
+static_obstacles_min_size: 0.2
+static_obstacles_max_size: 0.5
+
+# dynamic obstacle
+dynamic_obstacles_mode: random
+dynamic_obstacles_num: 5
+dynamic_obstacles_min_size: 0.2
+dynamic_obstacles_max_size: 0.5
+dynamic_obstacles_min_speed: 0.1
+dynamic_obstacles_max_speed: 0.5
+
+# semantics
+semantics_mode: picture
+semantics_picture_path: $(find map_generator)/assets/rgb1.png
+
+# slope
+slope_mode: picture
+slope_picture_path: $(find map_generator)/assets/terrain_level1.png
+
+# static obstacle cost
+static_obstacle_cost_mode: esdf
+static_obstacle_cost_esdf_max_distance: 2.0
+
+# dynamic obstacle cost
+dynamic_obstacle_cost_mode: esdf
+dynamic_obstacle_cost_esdf_max_distance: 2.0
+
+# semantic cost
+semantic_cost_mode: esdf
+semantic_cost_esdf_max_distance: 2.0
+
+# slope cost
+slope_cost_mode: esdf
+slope_cost_esdf_max_distance: 2.0
+
+# total cost
+total_cost_mode: esdf
+total_cost_esdf_max_distance: 2.0
